@@ -8,13 +8,15 @@ function App() {
   const [forecast, setForecast] = useState([]);
   const [city, setCity] = useState("Milan");
   const [search, setSearch] = useState("");
-  const [error, setError] = useState("")
+  const [error, setError] = useState("");
+  const [weatherCondition, setWeatherCondition] = useState("");
 
   useEffect(() => {
     fetch(`https://api.openweathermap.org/data/2.5/forecast?q=${city}&units=metric&appid=${API_KEY}`)
       .then(res => res.json())
       .then(data => {
         if(data.cod === "200") {
+          setWeatherCondition(data.list[0].weather[0].main);
           const dailyData = data.list.filter(item => item.dt_txt.includes("12:00:00"));
           setForecast(dailyData.slice(0, 5)); // prendi i primi 5 giorni
           setError("");
@@ -37,8 +39,25 @@ function App() {
     }
   }
 
+  function getBackground(condition) {
+    switch (condition) {
+      case "Clear":
+        return "bg-gradient-to-b from-blue-400 to-yellow-200";
+      case "Clouds":
+        return "bg-gradient-to-b from-gray-400 to-gray-200";
+      case "Rain":
+        return "bg-gradient-to-b from-blue-800 to-blue-400";
+      case "Snow":
+        return "bg-gradient-to-b from-white to-blue-100";
+      case "Thunderstorm":
+        return "bg-gradient-to-b from-gray-800 to-purple-500";
+      default:
+        return "bg-blue-300";
+    }
+  }
+
   return (
-    <div className="App bg-blue-300 min-h-screen p-6 flex flex-col items-center justify-center">
+    <div className={`App ${getBackground(weatherCondition)} min-h-screen p-6 flex flex-col items-center justify-center`}>
       <h1 className="text-4xl font-semibold text-center mb-6">Weather Forecast</h1>
 
       <form onSubmit={handleSearch} className="flex justify-center mb-6 gap-1">
